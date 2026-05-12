@@ -2,7 +2,10 @@ import {
   Component,
   DestroyRef,
   OnInit,
-  inject
+  inject,
+  ApplicationRef,
+  createComponent,
+  EnvironmentInjector
 } from '@angular/core';
 
 import {
@@ -21,15 +24,12 @@ import { User } from '../../models/user';
 
 import { UserService } from '../../services/user';
 
-import { UserFormComponent } from '../user-form/user-form';
-
 @Component({
   selector: 'app-user-dashboard',
   standalone: true,
   imports: [
     CommonModule,
-    FormsModule,
-    UserFormComponent
+    FormsModule
   ],
   templateUrl: './user-dashboard.html',
   styleUrls: ['./user-dashboard.scss']
@@ -44,6 +44,18 @@ implements OnInit {
     inject(DestroyRef);
 
   /*
+    Angular app reference
+  */
+  private appRef =
+    inject(ApplicationRef);
+
+  /*
+    Angular injector
+  */
+  private injector =
+    inject(EnvironmentInjector);
+
+  /*
     All users
   */
   users: User[] = [];
@@ -54,7 +66,7 @@ implements OnInit {
   filteredUsers: User[] = [];
 
   /*
-    Search input
+    Search value
   */
   searchTerm = '';
 
@@ -64,7 +76,7 @@ implements OnInit {
   isModalOpen = false;
 
   /*
-    Selected user for edit
+    Selected user
   */
   selectedUser: User | null = null;
 
@@ -102,8 +114,7 @@ implements OnInit {
   ngOnInit(): void {
 
     /*
-      Subscribe immediately
-      so data renders instantly
+      Reactive subscription
     */
     this.userService.users$
       .pipe(
@@ -113,18 +124,12 @@ implements OnInit {
       )
       .subscribe((users) => {
 
-        /*
-          Store users
-        */
         this.users = users || [];
 
-        /*
-          Apply filters
-        */
         this.applyFilters();
 
         /*
-          Update chart if exists
+          Update chart dynamically
         */
         if (this.chart) {
 
@@ -133,8 +138,7 @@ implements OnInit {
       });
 
     /*
-      Load chart separately
-      without blocking render
+      Lazy load chart
     */
     this.loadChart();
   }
@@ -146,9 +150,6 @@ implements OnInit {
 
     try {
 
-      /*
-        Import Chart.js
-      */
       const chartModule =
         await import('chart.js/auto');
 
@@ -156,7 +157,7 @@ implements OnInit {
         chartModule.default;
 
       /*
-        Wait for DOM render
+        Ensure DOM ready
       */
       requestAnimationFrame(() => {
 
@@ -167,30 +168,110 @@ implements OnInit {
     } catch (error) {
 
       console.error(
-        'Chart.js loading failed:',
+        'Chart.js failed:',
         error
       );
     }
   }
 
   /*
-    Open add modal
+    Open add user modal
   */
-  openAddUserModal(): void {
+  async openAddUserModal(): Promise<void> {
 
     this.selectedUser = null;
 
-    this.isModalOpen = true;
+    await this.createLazyModal();
   }
 
   /*
-    Edit user
+    Open edit modal
   */
-  editUser(user: User): void {
+  async editUser(
+    user: User
+  ): Promise<void> {
 
     this.selectedUser = user;
 
-    this.isModalOpen = true;
+    await this.createLazyModal();
+  }
+
+  /*
+    Create lazy loaded modal
+  */
+  async createLazyModal(): Promise<void> {
+
+    /*
+      Import component lazily
+    */
+    const component =
+      await import(
+        '../user-form/user-form'
+      );
+
+    const UserFormComponent =
+      component.UserFormComponent;
+
+    /*
+      Create component dynamically
+    */
+    const componentRef =
+      createComponent(
+        UserFormComponent,
+        {
+          environmentInjector:
+            this.injector
+        }
+      );
+
+    /*
+      Pass existing user
+    */
+    componentRef.instance.existingUser =
+      this.selectedUser;
+
+    /*
+      Handle form submit
+    */
+    componentRef.instance.userAdded
+      .subscribe((user: User) => {
+
+        if (this.selectedUser) {
+
+          this.updateUser(user);
+
+        } else {
+
+          this.addUser(user);
+        }
+
+        componentRef.destroy();
+      });
+
+    /*
+      Handle close
+    */
+    componentRef.instance.closeModal
+      .subscribe(() => {
+
+        componentRef.destroy();
+
+        this.closeModal();
+      });
+
+    /*
+      Attach view
+    */
+    this.appRef.attachView(
+      componentRef.hostView
+    );
+
+    /*
+      Append modal to body
+    */
+    document.body.appendChild(
+      componentRef.location.nativeElement
+    );
   }
 
   /*
@@ -259,7 +340,7 @@ implements OnInit {
     );
 
     /*
-      Prevent empty pages
+      Prevent empty page
     */
     const remainingUsers =
       this.filteredUsers.length - 1;
@@ -284,7 +365,7 @@ implements OnInit {
   }
 
   /*
-    Filter users
+    Search users
   */
   filterUsers(): void {
 
@@ -294,7 +375,7 @@ implements OnInit {
   }
 
   /*
-    Apply filters
+    Apply search filters
   */
   applyFilters(): void {
 
@@ -390,7 +471,7 @@ implements OnInit {
   }
 
   /*
-    Show toast
+    Toast notification
   */
   showToastMessage(
     message: string
@@ -408,7 +489,7 @@ implements OnInit {
   }
 
   /*
-    Get role counts
+    Role counts
   */
   getRoleCounts() {
 
@@ -521,6 +602,6 @@ implements OnInit {
       roleCounts.viewer
     ];
 
-    this.chart.update('none');
+    this.chart.update();
   }
 }

@@ -259,22 +259,3 @@
   }
 
 </div>
-
-<!-- User Form Modal -->
-
-<app-user-form
-
-  *ngIf="isModalOpen"
-
-  [existingUser]="selectedUser"
-
-  (userAdded)="
-    selectedUser
-      ? updateUser($event)
-      : addUser($event)
-  "
-
-  (closeModal)="closeModal()"
-
->
-</app-user-form>
