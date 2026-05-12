@@ -1,0 +1,280 @@
+<div class="dashboard">
+
+  <!-- Header -->
+  <div class="dashboard-header">
+
+    <div class="header-content">
+
+      <span class="dashboard-tag">
+        User Management
+      </span>
+
+      <h1>User Dashboard</h1>
+
+      <p>
+        Manage users, monitor analytics,
+        and maintain role distribution.
+      </p>
+
+    </div>
+
+    <button
+      class="add-user-btn"
+      (click)="openAddUserModal()"
+    >
+      + Add User
+    </button>
+
+  </div>
+
+  <!-- Search -->
+  <div class="search-box">
+
+    <input
+      type="text"
+      placeholder="Search users..."
+      [(ngModel)]="searchTerm"
+      (input)="filterUsers()"
+    />
+
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-grid">
+
+    <div class="stat-card">
+
+      <h3>Total Users</h3>
+
+      <span>
+        {{ users.length }}
+      </span>
+
+    </div>
+
+    <div class="stat-card">
+
+      <h3>Filtered Results</h3>
+
+      <span>
+        {{ filteredUsers.length }}
+      </span>
+
+    </div>
+
+    <div class="stat-card">
+
+      <h3>System Status</h3>
+
+      <span class="status-online">
+        Online
+      </span>
+
+    </div>
+
+  </div>
+
+    <div class="dashboard-grid">
+
+      <!-- Table -->
+      <div class="table-wrapper">
+
+        <div class="table-header">
+
+          <h2>User Records</h2>
+
+          <span>
+            {{ filteredUsers.length }}
+            Users
+          </span>
+
+        </div>
+
+        @if (filteredUsers.length > 0) {
+
+          <table>
+
+            <thead>
+
+              <tr>
+
+                <th>Name</th>
+
+                <th>Email</th>
+
+                <th>Role</th>
+
+                <th>Actions</th>
+
+              </tr>
+
+            </thead>
+
+            <tbody>
+
+              <tr
+                *ngFor="
+                  let user of paginatedUsers
+                "
+              >
+
+                <!-- Name -->
+                <td>
+
+                  <div class="user-info">
+
+                    <div class="avatar">
+                      {{ user.name.charAt(0) }}
+                    </div>
+
+                    <span>
+                      {{ user.name }}
+                    </span>
+
+                  </div>
+
+                </td>
+
+                <!-- Email -->
+                <td>
+
+                  {{ user.email }}
+
+                </td>
+
+                <!-- Role -->
+                <td>
+
+                  <span class="role-badge">
+                    {{ user.role }}
+                  </span>
+
+                </td>
+
+                <!-- Actions -->
+                <td>
+
+                  <div class="action-buttons">
+
+                    <button
+                      class="edit-btn"
+                      (click)="editUser(user)"
+                    >
+                      Edit
+                    </button>
+
+                    <button
+                      class="delete-btn"
+                      (click)="deleteUser(user.id)"
+                    >
+                      Delete
+                    </button>
+
+                  </div>
+
+                </td>
+
+              </tr>
+
+            </tbody>
+
+          </table>
+
+          <!-- Pagination -->
+          <div
+            class="pagination"
+            *ngIf="totalPages > 1"
+          >
+
+            <button
+              (click)="changePage(currentPage - 1)"
+              [disabled]="currentPage === 1"
+            >
+              Prev
+            </button>
+
+            <span>
+
+              Page {{ currentPage }}
+
+              of {{ totalPages }}
+
+            </span>
+
+            <button
+              (click)="changePage(currentPage + 1)"
+              [disabled]="currentPage === totalPages"
+            >
+              Next
+            </button>
+
+          </div>
+
+        } @else {
+
+          <div class="empty-state">
+
+            <h3>No Users Found</h3>
+
+            <p>
+              Try adjusting your search
+            </p>
+
+          </div>
+
+        }
+
+      </div>
+
+      <!-- Chart -->
+      <div class="chart-card">
+
+        <div class="chart-header">
+
+          <h2>Role Distribution</h2>
+
+          <span>
+            Analytics
+          </span>
+
+        </div>
+
+        <canvas id="roleChart"></canvas>
+
+      </div>
+
+    </div>
+
+ 
+
+  <!-- Toast -->
+  @if (showToast) {
+
+    <div class="toast">
+
+      {{ toastMessage }}
+
+    </div>
+
+  }
+
+</div>
+
+<!-- User Form Modal -->
+
+<app-user-form
+
+  *ngIf="isModalOpen"
+
+  [existingUser]="selectedUser"
+
+  (userAdded)="
+    selectedUser
+      ? updateUser($event)
+      : addUser($event)
+  "
+
+  (closeModal)="closeModal()"
+
+>
+</app-user-form>
