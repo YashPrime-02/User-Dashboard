@@ -1,59 +1,205 @@
-# Dashboard
+# User Dashboard - Angular Frontend Assignment
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.0.4.
+## Overview
 
-## Development server
+This project is a modern Angular User Dashboard built as part of a Frontend Engineer assignment.
 
-To start a local development server, run:
+The application allows users to:
+
+- View users in a dynamic table
+- Add new users through a lazy-loaded modal form
+- Edit existing users
+- Delete users
+- Search and filter users
+- View role distribution using a dynamic Chart.js doughnut chart
+- Persist data using localStorage
+- Navigate paginated user data
+
+The project focuses heavily on:
+
+- Angular standalone architecture
+- RxJS state management
+- Lazy loading optimization
+- Reactive forms
+- Performance-focused frontend practices
+
+---
+
+# Tech Stack
+
+- Angular 17+
+- TypeScript
+- RxJS
+- Chart.js
+- SCSS
+- Standalone Components
+
+---
+
+# Features
+
+## User Management
+
+- Add User
+- Edit User
+- Delete User
+- Search Users
+- Pagination
+- Toast Notifications
+
+## Dynamic Analytics
+
+- Real-time role distribution chart
+- Doughnut chart using Chart.js
+- Automatic updates on CRUD operations
+
+## Lazy Loading
+
+### Chart.js Lazy Loading
+
+Chart.js is dynamically imported only when required.
+
+```ts
+await import('chart.js/auto');
+```
+
+### UserFormComponent Lazy Loading
+
+The modal component is dynamically imported and instantiated only when the user opens the modal.
+
+```ts
+await import('../user-form/user-form');
+```
+
+This improves initial bundle performance.
+
+---
+
+# State Management
+
+RxJS `BehaviorSubject` is used for reactive state management.
+
+```ts
+private usersSubject =
+  new BehaviorSubject<User[]>([]);
+```
+
+All UI sections automatically update when the user state changes.
+
+---
+
+# Form Validation
+
+Reactive Forms validation includes:
+
+- Required fields
+- Email validation
+- Minimum name length
+- Role selection validation
+
+---
+
+# Design Requirements Implemented
+
+## Theme Colors
+
+- #383838
+- #1c4980
+
+## UI Standards
+
+- Inputs: 48px height
+- Buttons: 48px height
+- Responsive layout
+- Modern card-based UI
+
+---
+
+# Bonus Features Implemented
+
+- Pagination
+- Search / Filtering
+- Edit User
+- Delete User
+- localStorage Persistence
+- Toast Notifications
+
+---
+
+# Project Structure
+
+```bash
+src/app
+│
+├── components
+│   ├── user-dashboard
+│   └── user-form
+│
+├── models
+│   └── user.ts
+│
+├── services
+│   └── user.ts
+```
+
+---
+
+# Installation
+
+## Clone Repository
+
+```bash
+git clone <repository-url>
+```
+
+## Install Dependencies
+
+```bash
+npm install
+```
+
+## Start Development Server
 
 ```bash
 ng serve
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+Navigate to:
 
 ```bash
-ng generate component component-name
+http://localhost:4200
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+---
 
-```bash
-ng generate --help
-```
+# Performance Optimizations
 
-## Building
+- Lazy-loaded Chart.js
+- Lazy-loaded UserFormComponent
+- Dynamic component rendering
+- Reactive UI updates
+- Optimized pagination rendering
 
-To build the project run:
+---
 
-```bash
-ng build
-```
+# Acceptance Criteria Coverage
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+| Requirement | Status |
+|---|---|
+| Dynamic User Table | ✅ |
+| Chart.js Role Distribution | ✅ |
+| Lazy-loaded Modal | ✅ |
+| Lazy-loaded Chart.js | ✅ |
+| RxJS BehaviorSubject | ✅ |
+| Real-time Updates | ✅ |
+| Form Validation | ✅ |
+| Responsive Design | ✅ |
+| No Console Errors | ✅ |
 
-## Running unit tests
+---
 
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+# Author
 
-```bash
-ng test
-```
+Yash Mishra
 
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+Frontend Developer
